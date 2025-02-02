@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Voting App</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .vote-container {
+            display: flex;
+            gap: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+        }
+        .option-a { background-color: #007BFF; }
+        .option-b { background-color: #28A745; }
+        .results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>KOTY czy PSY</h1>
+    <div class="vote-container">
+        <button class="option-a" onclick="vote('Option A')">A:Koty</button>
+        <button class="option-b" onclick="vote('Option B')">B:Psy</button>
+    </div>
+    <div class="results" id="results">Loading results...</div>
+
+    <script>
+        async function fetchVotes() {
+            try {
+                const response = await fetch('/votes');
+                const data = await response.json();
+                document.getElementById('results').innerText = `Option A: ${data["Option A"]} | Option B: ${data["Option B"]}`;
+            } catch (error) {
+                console.error('Error fetching votes:', error);
+                document.getElementById('results').innerText = 'Error loading results';
+            }
+        }
+
+        async function vote(option) {
+            try {
+                await fetch('/vote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ choice: option })
+                });
+                fetchVotes(); // Odśwież wyniki po głosie
+            } catch (error) {
+                console.error('Error voting:', error);
+            }
+        }
+
+        fetchVotes(); // Pobierz wyniki na start
+        setInterval(fetchVotes, 5000); // Odśwież co 5 sekund
+    </script>
+</body>
+</html>
